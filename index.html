@@ -3,55 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GREEN CYCLE - 2° ANO B (DIOFEIRAC)</title>
+    <title>Desafio da Vida Selvagem - DIOFEIRAC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Paleta de Cores DIOFEIRAC */
+        /* Nova Paleta de Cores: Fundo Claro (Vermelho Suave para Branco) */
         :root {
             --cor-primaria: #8B1A1A; /* Vermelho Diocesano */
             --cor-primaria-hover: #A52A2A;
-            --cor-acento: #DAA520; /* Dourado */
-            --cor-fundo-inicio: #2d0a0a;
-            --cor-fundo-fim: #1a1a1a;
+            --cor-acento: #DAA520; /* Dourado para destaque */
+            --cor-verde: #0A8000; /* Verde para "GREEN CYCLE" e correto */
+            --cor-verde-hover: #0C9000;
+            
+            --cor-fundo-inicio: #FDF0F0; /* Quase branco com um toque rosado/avermelhado */
+            --cor-fundo-fim: #FFFFFF; /* Branco puro */
+
+            --cor-card-bg: rgba(255, 255, 255, 0.9); /* Fundo dos cards quase branco, levemente translúcido */
+            --cor-card-border: rgba(139, 26, 26, 0.1); /* Borda suave em vermelho da logo */
+            --cor-texto-principal: #333333; /* Texto escuro para legibilidade no fundo claro */
+            --cor-texto-secundario: #666666; /* Texto cinza para descrições */
+            --cor-resposta-errada: #EF4444; /* Vermelho para errado */
+            --cor-btn-default-bg: #EEEEEE; /* Fundo dos botões de resposta claro */
+            --cor-btn-default-hover: #DDDDDD;
+            --cor-btn-default-border: #CCCCCC;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, var(--cor-fundo-inicio), var(--cor-fundo-fim));
-            touch-action: manipulation; /* Evita zoom com duplo toque */
+            touch-action: manipulation;
+            color: var(--cor-texto-principal); /* Cor de texto padrão escuro */
         }
         .game-card {
-            background-color: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: var(--cor-card-bg);
+            backdrop-filter: blur(5px); /* Efeito blur mais suave */
+            border: 1px solid var(--cor-card-border);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); /* Sombra mais visível no fundo claro */
         }
         .btn-primary {
             background-color: var(--cor-primaria);
             transition: background-color 0.3s;
+            color: white; /* Botão primário com texto branco */
         }
         .btn-primary:hover {
             background-color: var(--cor-primaria-hover);
         }
         .btn-answer {
+            background-color: var(--cor-btn-default-bg);
+            border-bottom: 4px solid var(--cor-btn-default-border);
             transition: all 0.2s ease-in-out;
+            color: var(--cor-texto-principal); /* Texto dos botões de resposta escuro */
         }
         .btn-answer:hover {
+            background-color: var(--cor-btn-default-hover);
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .correct {
-            background-color: #22c55e !important; /* Verde para 'correto' */
-            border-color: #16a34a !important;
-            color: white;
+            background-color: var(--cor-verde) !important;
+            border-color: var(--cor-verde-hover) !important;
+            color: white !important; /* Texto branco para o botão correto */
             transform: scale(1.05);
         }
         .incorrect {
-            background-color: #ef4444 !important; /* Vermelho para 'incorreto' */
-            border-color: #dc2626 !important;
-            color: white;
+            background-color: var(--cor-resposta-errada) !important;
+            border-color: #DC2626 !important;
+            color: white !important; /* Texto branco para o botão incorreto */
         }
         .disabled {
             pointer-events: none;
@@ -61,54 +80,64 @@
             animation: flash-red 0.5s ease-in-out;
         }
         @keyframes flash-red {
-            0%, 100% { color: #f87171; } /* red-400 */
-            50% { color: #dc2626; transform: scale(1.1); } /* red-600 */
+            0%, 100% { color: #f87171; }
+            50% { color: #dc2626; transform: scale(1.1); }
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 text-white">
+<body class="min-h-screen flex items-center justify-center p-4">
 
     <main id="game-container" class="w-full max-w-2xl mx-auto">
 
-        <!-- Tela Inicial -->
-        <div id="start-screen" class="game-card rounded-2xl p-8 text-center shadow-lg">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4" style="color: #22c55e;">GREEN CYCLE:</h1>
-            <p class="text-lg mb-6 text-gray-200">Taking Actions for a Greener Future –  Gerando ações para um futuro mais verde. <p> Teste seus conhecimentos sobre a vida selvagem e os perigos da poluição. Você tem <span class="font-bold" style="color: var(--cor-acento);">5 minutos</span> para acertar o máximo de perguntas!</p>
-            <ul class="text-left mb-8 space-y-2 max-w-md mx-auto text-gray-300">
-                <li>✅ <span class="font-semibold text-green-400">Resposta certa:</span> +10 pontos.</li>
-                <li>❌ <span class="font-semibold text-red-400">Resposta errada:</span> -10 segundos de penalidade.</li>
+        <!-- Tela Inicial --><div id="start-screen" class="game-card rounded-2xl p-8 text-center shadow-lg">
+            <!-- Logo Adicionada - Sem filtros para se destacar no fundo claro --><img src="https://www.diocesano.g12.br/wp-content/uploads/2023/12/logo-diocesano.png" 
+                 alt="Logo Colégio Diocesano" 
+                 class="h-20 md:h-24 mx-auto mb-6"
+                 onerror="this.style.display='none'">
+
+            <!-- Título Todo em Verde --><h1 class="text-2xl md:text-3xl font-bold mb-1" style="color: var(--cor-verde);">
+                GREEN CYCLE: Taking Actions for a Greener Future
+            </h1>
+            <h2 class="text-xl md:text-2xl font-semibold mt-1" style="color: var(--cor-acento);">
+                Gerando ações para um futuro mais verde
+            </h2>
+            <p class="text-2xl font-bold mt-4 mb-6" style="color: var(--cor-primaria);">
+                2° ANO B
+            </p>
+            
+            <p class="text-lg mb-6" style="color: var(--cor-texto-secundario);">Teste seus conhecimentos sobre a vida selvagem e os perigos da poluição. Você tem <span class="font-bold" style="color: var(--cor-acento);">5 minutos</span> para acertar o máximo de perguntas!</p>
+            <ul class="text-left mb-8 space-y-2 max-w-md mx-auto" style="color: var(--cor-texto-secundario);">
+                <li>✅ <span class="font-semibold" style="color: var(--cor-verde);">Resposta certa:</span> +10 pontos.</li>
+                <li>❌ <span class="font-semibold" style="color: var(--cor-resposta-errada);">Resposta errada:</span> -10 segundos de penalidade.</li>
             </ul>
-            <button id="start-btn" class="w-full btn-primary text-white font-bold py-4 px-8 rounded-lg text-2xl transform hover:scale-105">
+            <button id="start-btn" class="w-full btn-primary font-bold py-4 px-8 rounded-lg text-2xl transform hover:scale-105">
                 Iniciar Jogo
             </button>
         </div>
 
-        <!-- Tela do Jogo -->
-        <div id="game-screen" class="hidden">
-            <div class="flex justify-between items-center mb-6">
+        <!-- Tela do Jogo --><div id="game-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6" style="color: var(--cor-texto-principal);">
                 <div class="text-2xl font-bold">Pontos: <span id="score" style="color: var(--cor-acento);">0</span></div>
-                <div id="timer-display" class="text-3xl font-bold bg-gray-800/50 px-4 py-2 rounded-lg">
+                <div id="timer-display" class="text-3xl font-bold bg-gray-200 px-4 py-2 rounded-lg" style="color: var(--cor-primaria);">
                     <span id="minutes">05</span>:<span id="seconds">00</span>
                 </div>
             </div>
             <div id="quiz-area" class="game-card rounded-2xl p-6 md:p-8 shadow-lg">
-                <h2 id="question-text" class="text-2xl font-semibold mb-6 h-24 flex items-center justify-center text-center">Carregando pergunta...</h2>
+                <h2 id="question-text" class="text-2xl font-semibold mb-6 h-24 flex items-center justify-center text-center" style="color: var(--cor-texto-principal);">Carregando pergunta...</h2>
                 <div id="answers-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Botões de resposta serão inseridos aqui -->
-                </div>
+                    <!-- Botões de resposta serão inseridos aqui --></div>
             </div>
         </div>
 
-        <!-- Tela Final -->
-        <div id="end-screen" class="hidden game-card rounded-2xl p-8 text-center shadow-lg">
+        <!-- Tela Final --><div id="end-screen" class="hidden game-card rounded-2xl p-8 text-center shadow-lg">
             <h1 class="text-4xl font-bold mb-3" style="color: var(--cor-primaria);">Tempo Esgotado!</h1>
-            <p class="text-2xl mb-4">Sua pontuação final foi:</p>
+            <p class="text-2xl mb-4" style="color: var(--cor-texto-principal);">Sua pontuação final foi:</p>
             <p id="final-score" class="text-6xl font-bold mb-6" style="color: var(--cor-acento);">0</p>
-            <div class="text-lg bg-black/20 p-4 rounded-lg mb-8">
-                <p class="font-semibold text-red-300 mb-2">Uma pequena ação faz uma grande diferença!</p>
-                <p class="text-gray-300">A poluição e o desmatamento ameaçam milhares de espécies. Reduzir o consumo de plástico, reciclar e apoiar projetos de conservação são passos essenciais para proteger nosso planeta. A mudança começa com cada um de nós.</p>
+            <div class="text-lg bg-gray-100 p-4 rounded-lg mb-8" style="color: var(--cor-texto-secundario);">
+                <p class="font-semibold mb-2" style="color: var(--cor-resposta-errada);">Uma pequena ação faz uma grande diferença!</p>
+                <p>A poluição e o desmatamento ameaçam milhares de espécies. Reduzir o consumo de plástico, reciclar e apoiar projetos de conservação são passos essenciais para proteger nosso planeta. A mudança começa com cada um de nós.</p>
             </div>
-            <button id="restart-btn" class="w-full btn-primary text-white font-bold py-4 px-8 rounded-lg text-2xl transform hover:scale-105">
+            <button id="restart-btn" class="w-full btn-primary font-bold py-4 px-8 rounded-lg text-2xl transform hover:scale-105">
                 Jogar Novamente
             </button>
         </div>
@@ -309,7 +338,7 @@
                 shuffledAnswers.forEach(answer => {
                     const button = document.createElement('button');
                     button.textContent = answer.text;
-                    button.className = 'btn-answer w-full bg-gray-800 hover:bg-gray-700 border-b-4 border-gray-900 text-white font-semibold py-4 px-4 rounded-lg text-lg';
+                    button.className = 'btn-answer w-full font-semibold py-4 px-4 rounded-lg text-lg';
                     button.addEventListener('click', () => selectAnswer(button, answer.correct));
                     answersContainer.appendChild(button);
                 });
