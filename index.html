@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Nova Paleta de Cores: Fundo Claro (Vermelho Suave para Branco) */
+        /* Paleta de Cores: Fundo Claro (Vermelho Suave para Branco) */
         :root {
             --cor-primaria: #8B1A1A; /* Vermelho Diocesano */
             --cor-primaria-hover: #A52A2A;
@@ -83,19 +83,31 @@
             0%, 100% { color: #f87171; }
             50% { color: #dc2626; transform: scale(1.1); }
         }
+        
+        /* Estilo para o feedback de streak */
+        #feedback-text {
+            transition: opacity 0.3s ease-out;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
     <main id="game-container" class="w-full max-w-2xl mx-auto">
 
-        <!-- Tela Inicial --><div id="start-screen" class="game-card rounded-2xl p-8 text-center shadow-lg">
-            <!-- Logo Adicionada - Sem filtros para se destacar no fundo claro --><img src="https://www.diocesano.g12.br/wp-content/uploads/2023/12/logo-diocesano.png" 
+        <!-- Tela Inicial -->
+        <div id="start-screen" class="game-card rounded-2xl p-8 text-center shadow-lg">
+            <img src="https://www.diocesano.g12.br/wp-content/uploads/2023/12/logo-diocesano.png" 
                  alt="Logo Colégio Diocesano" 
                  class="h-20 md:h-24 mx-auto mb-6"
                  onerror="this.style.display='none'">
 
-            <!-- Título Todo em Verde --><h1 class="text-2xl md:text-3xl font-bold mb-1" style="color: var(--cor-verde);">
+            <h1 class="text-2xl md:text-3xl font-bold mb-1" style="color: var(--cor-verde);">
                 GREEN CYCLE: Taking Actions for a Greener Future
             </h1>
             <h2 class="text-xl md:text-2xl font-semibold mt-1" style="color: var(--cor-acento);">
@@ -107,7 +119,7 @@
             
             <p class="text-lg mb-6" style="color: var(--cor-texto-secundario);">Teste seus conhecimentos sobre a vida selvagem e os perigos da poluição. Você tem <span class="font-bold" style="color: var(--cor-acento);">5 minutos</span> para acertar o máximo de perguntas!</p>
             <ul class="text-left mb-8 space-y-2 max-w-md mx-auto" style="color: var(--cor-texto-secundario);">
-                <li>✅ <span class="font-semibold" style="color: var(--cor-verde);">Resposta certa:</span> +10 pontos.</li>
+                <li>✅ <span class="font-semibold" style="color: var(--cor-verde);">Resposta certa:</span> +10 pontos (e bônus por streak!)</li>
                 <li>❌ <span class="font-semibold" style="color: var(--cor-resposta-errada);">Resposta errada:</span> -10 segundos de penalidade.</li>
             </ul>
             <button id="start-btn" class="w-full btn-primary font-bold py-4 px-8 rounded-lg text-2xl transform hover:scale-105">
@@ -115,21 +127,28 @@
             </button>
         </div>
 
-        <!-- Tela do Jogo --><div id="game-screen" class="hidden">
-            <div class="flex justify-between items-center mb-6" style="color: var(--cor-texto-principal);">
+        <!-- Tela do Jogo -->
+        <div id="game-screen" class="hidden">
+            <div class="flex justify-between items-center mb-4" style="color: var(--cor-texto-principal);">
                 <div class="text-2xl font-bold">Pontos: <span id="score" style="color: var(--cor-acento);">0</span></div>
                 <div id="timer-display" class="text-3xl font-bold bg-gray-200 px-4 py-2 rounded-lg" style="color: var(--cor-primaria);">
                     <span id="minutes">05</span>:<span id="seconds">00</span>
                 </div>
             </div>
+            
+            <!-- NOVO: Feedback de Streak -->
+            <div id="feedback-text" class="text-center text-xl font-bold h-6 mb-2"></div>
+
             <div id="quiz-area" class="game-card rounded-2xl p-6 md:p-8 shadow-lg">
                 <h2 id="question-text" class="text-2xl font-semibold mb-6 h-24 flex items-center justify-center text-center" style="color: var(--cor-texto-principal);">Carregando pergunta...</h2>
                 <div id="answers-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Botões de resposta serão inseridos aqui --></div>
+                    <!-- Botões de resposta serão inseridos aqui -->
+                </div>
             </div>
         </div>
 
-        <!-- Tela Final --><div id="end-screen" class="hidden game-card rounded-2xl p-8 text-center shadow-lg">
+        <!-- Tela Final -->
+        <div id="end-screen" class="hidden game-card rounded-2xl p-8 text-center shadow-lg">
             <h1 class="text-4xl font-bold mb-3" style="color: var(--cor-primaria);">Tempo Esgotado!</h1>
             <p class="text-2xl mb-4" style="color: var(--cor-texto-principal);">Sua pontuação final foi:</p>
             <p id="final-score" class="text-6xl font-bold mb-6" style="color: var(--cor-acento);">0</p>
@@ -162,10 +181,14 @@
 
             const questionText = document.getElementById('question-text');
             const answersContainer = document.getElementById('answers-container');
+            const feedbackText = document.getElementById('feedback-text'); // Novo elemento de feedback
 
             // Configurações do Jogo
             const GAME_DURATION = 300; // 5 minutos em segundos
             const PENALTY_TIME = 10; // 10 segundos de penalidade
+            const BASE_POINTS = 10; // Pontos base por acerto
+            const STREAK_BONUS_MULTIPLIER = 2; // Pontos de bônus por nível de streak
+            const MAX_STREAK_BONUS = 10; // Bônus máximo (ex: 10 + 10 = 20 pts)
 
             // Estado do Jogo
             let score = 0;
@@ -173,8 +196,11 @@
             let timerInterval = null;
             let currentQuestionIndex = 0;
             let questions = [];
+            let correctStreak = 0; // Nova variável de streak
 
+            // NOVO: Banco de perguntas expandido (total 34)
             const allQuestions = [
+                // Originais
                 {
                     question: "Qual destes animais brasileiros está criticamente ameaçado de extinção?",
                     answers: [
@@ -282,6 +308,205 @@
                         { text: "Polinização de plantas", correct: true },
                         { text: "Aeração do solo", correct: false }
                     ]
+                },
+                // Novas perguntas
+                {
+                    question: "O Mico-Leão-Dourado é um animal endêmico de qual bioma brasileiro?",
+                    answers: [
+                        { text: "Amazônia", correct: false },
+                        { text: "Mata Atlântica", correct: true },
+                        { text: "Cerrado", correct: false },
+                        { text: "Pampas", correct: false }
+                    ]
+                },
+                {
+                    question: "O Urso Panda Gigante, símbolo da WWF, se alimenta quase exclusivamente de:",
+                    answers: [
+                        { text: "Bambu", correct: true },
+                        { text: "Eucalipto", correct: false },
+                        { text: "Peixes", correct: false },
+                        { text: "Frutas", correct: false }
+                    ]
+                },
+                {
+                    question: "Qual o nome do processo em que o excesso de nutrientes (esgoto, fertilizantes) na água causa a morte de peixes?",
+                    answers: [
+                        { text: "Destilação", correct: false },
+                        { text: "Decantação", correct: false },
+                        { text: "Eutrofização", correct: true },
+                        { text: "Fotossíntese", correct: false }
+                    ]
+                },
+                {
+                    question: "O 'lixo eletrônico' (e-lixo) é perigoso por conter:",
+                    answers: [
+                        { text: "Metais pesados (chumbo, mercúrio)", correct: true },
+                        { text: "Bactérias", correct: false },
+                        { text: "Gases de efeito estufa", correct: false },
+                        { text: "Vírus de computador", correct: false }
+                    ]
+                },
+                {
+                    question: "Qual é o maior bioma terrestre do Brasil?",
+                    answers: [
+                        { text: "Mata Atlântica", correct: false },
+                        { text: "Cerrado", correct: false },
+                        { text: "Amazônia", correct: true },
+                        { text: "Pantanal", correct: false }
+                    ]
+                },
+                {
+                    question: "O derramamento de qual substância é uma das piores formas de poluição marinha?",
+                    answers: [
+                        { text: "Açúcar", correct: false },
+                        { text: "Petróleo", correct: true },
+                        { text: "Areia", correct: false },
+                        { text: "Esgoto doméstico", correct: false }
+                    ]
+                },
+                {
+                    question: "Qual animal, ameaçado no Brasil, é conhecido por 'plantar' araucárias ao enterrar pinhões?",
+                    answers: [
+                        { text: "Esquilo", correct: false },
+                        { text: "Lobo-guará", correct: false },
+                        { text: "Tatu-canastra", correct: false },
+                        { text: "Gralha-azul", correct: true }
+                    ]
+                },
+                {
+                    question: "A camada de ozônio protege a Terra contra qual tipo de radiação?",
+                    answers: [
+                        { text: "Radiação Ultravioleta (UV)", correct: true },
+                        { text: "Raios X", correct: false },
+                        { text: "Infravermelho", correct: false },
+                        { text: "Micro-ondas", correct: false }
+                    ]
+                },
+                {
+                    question: "Qual destes itens NÃO é biodegradável?",
+                    answers: [
+                        { text: "Casca de banana", correct: false },
+                        { text: "Garrafa de vidro", correct: true },
+                        { text: "Papel", correct: false },
+                        { text: "Folhas secas", correct: false }
+                    ]
+                },
+                {
+                    question: "O Tamanduá-bandeira está ameaçado de extinção principalmente por:",
+                    answers: [
+                        { text: "Caça para alimentação", correct: false },
+                        { text: "Falta de formigas", correct: false },
+                        { text: "Atropelamentos e queimadas", correct: true },
+                        { text: "Poluição dos rios", correct: false }
+                    ]
+                },
+                {
+                    question: "Qual é o principal gás do 'Efeito Estufa' liberado pela atividade humana?",
+                    answers: [
+                        { text: "Oxigênio (O2)", correct: false },
+                        { text: "Dióxido de Carbono (CO2)", correct: true },
+                        { text: "Nitrogênio (N2)", correct: false },
+                        { text: "Hélio (He)", correct: false }
+                    ]
+                },
+                {
+                    question: "O que significa 'energia renovável'?",
+                    answers: [
+                        { text: "Energia que nunca acaba (ex: solar, eólica)", correct: true },
+                        { text: "Energia muito barata", correct: false },
+                        { text: "Energia que pode ser reciclada", correct: false },
+                        { text: "Energia de combustíveis fósseis", correct: false }
+                    ]
+                },
+                {
+                    question: "A 'poluição luminosa' (excesso de luz nas cidades) prejudica principalmente:",
+                    answers: [
+                        { text: "A fotossíntese das plantas", correct: false },
+                        { text: "Animais noturnos e aves migratórias", correct: true },
+                        { text: "A qualidade do solo", correct: false },
+                        { text: "O crescimento de peixes", correct: false }
+                    ]
+                },
+                {
+                    question: "O Tigre-de-bengala é um animal ameaçado de extinção nativo de qual continente?",
+                    answers: [
+                        { text: "África", correct: false },
+                        { text: "América do Sul", correct: false },
+                        { text: "Ásia", correct: true },
+                        { text: "Austrália", correct: false }
+                    ]
+                },
+                {
+                    question: "O uso excessivo de agrotóxicos na agricultura polui principalmente:",
+                    answers: [
+                        { text: "O solo e os lençóis freáticos", correct: true },
+                        { text: "O ar das grandes cidades", correct: false },
+                        { text: "A camada de ozônio", correct: false },
+                        { text: "Os oceanos profundos", correct: false }
+                    ]
+                },
+                {
+                    question: "Qual o nome da maior espécie de peixe do mundo, ameaçada pela pesca predatória?",
+                    answers: [
+                        { text: "Baleia Azul", correct: false },
+                        { text: "Tubarão-branco", correct: false },
+                        { text: "Tubarão-baleia", correct: true },
+                        { text: "Peixe-boi", correct: false }
+                    ]
+                },
+                {
+                    question: "Qual dos '3 Rs' da sustentabilidade é considerado o mais importante?",
+                    answers: [
+                        { text: "Reciclar", correct: false },
+                        { text: "Reutilizar", correct: false },
+                        { text: "Reduzir", correct: true },
+                        { text: "Repensar", correct: false }
+                    ]
+                },
+                {
+                    question: "O Peixe-boi-marinho, encontrado no litoral do Nordeste, está ameaçado por:",
+                    answers: [
+                        { text: "Poluição sonora", correct: false },
+                        { text: "Colisão com embarcações e poluição", correct: true },
+                        { text: "Excesso de algas", correct: false },
+                        { text: "Pesca de arrasto", correct: false }
+                    ]
+                },
+                {
+                    question: "O bioma brasileiro 'Caatinga' significa 'Mata Branca' em qual idioma?",
+                    answers: [
+                        { text: "Tupi-Guarani", correct: true },
+                        { text: "Latim", correct: false },
+                        { text: "Português Arcaico", correct: false },
+                        { text: "Iorubá", correct: false }
+                    ]
+                },
+                {
+                    question: "A 'Ilha de Lixo do Pacífico' é uma enorme concentração flutuante de qual material?",
+                    answers: [
+                        { text: "Metal", correct: false },
+                        { text: "Vidro", correct: false },
+                        { text: "Plástico", correct: true },
+                        { text: "Material orgânico", correct: false }
+                    ]
+                },
+                {
+                    question: "Qual destes animais NÃO é um primata?",
+                    answers: [
+                        { text: "Lêmure", correct: false },
+                        { text: "Gorila", correct: false },
+                        { text: "Coala", correct: true },
+                        { text: "Mico-leão-dourado", correct: false }
+                    ]
+                },
+                {
+                    question: "Qual pássaro brasileiro é famoso por construir ninhos de barro em forma de 'forno'?",
+                    answers: [
+                        { text: "Sabiá-laranjeira", correct: false },
+                        { text: "João-de-barro", correct: true },
+                        { text: "Canário-da-terra", correct: false },
+                        { text: "Bem-te-vi", correct: false }
+                    ]
                 }
             ];
 
@@ -290,6 +515,7 @@
                 score = 0;
                 timeLeft = GAME_DURATION;
                 currentQuestionIndex = 0;
+                correctStreak = 0; // Reseta o streak
                 scoreDisplay.textContent = score;
 
                 // Embaralha as perguntas
@@ -322,8 +548,11 @@
             }
 
             function showQuestion() {
+                // VERIFICA SE AS PERGUNTAS ACABARAM
                 if (currentQuestionIndex >= questions.length) {
-                    // Se acabar as perguntas, recomeça do início (embaralhado)
+                    // Em vez de reiniciar, vamos embaralhar o array novamente
+                    // para garantir que a ordem seja diferente.
+                    questions.sort(() => Math.random() - 0.5);
                     currentQuestionIndex = 0;
                 }
 
@@ -331,6 +560,7 @@
                 questionText.textContent = question.question;
                 answersContainer.innerHTML = '';
                 answersContainer.classList.remove('disabled');
+                feedbackText.textContent = ''; // Limpa o feedback anterior
 
                 // Embaralha as respostas da pergunta atual
                 const shuffledAnswers = [...question.answers].sort(() => Math.random() - 0.5);
@@ -348,15 +578,33 @@
                 answersContainer.classList.add('disabled'); // Desabilita outros cliques
                 
                 if (isCorrect) {
-                    score += 10;
+                    correctStreak++;
+                    // Calcula o bônus: +2, +4, +6... limitado a +10 (total 20 pts)
+                    const streakBonus = Math.min(MAX_STREAK_BONUS, (correctStreak - 1) * STREAK_BONUS_MULTIPLIER);
+                    const pointsEarned = BASE_POINTS + streakBonus;
+                    
+                    score += pointsEarned;
                     scoreDisplay.textContent = score;
                     button.classList.add('correct');
+                    
+                    // Mostra feedback de pontos
+                    feedbackText.textContent = `+${pointsEarned} PONTOS!`;
+                    if (correctStreak > 1) {
+                         feedbackText.textContent += ` (Streak ${correctStreak}x)`;
+                    }
+                    feedbackText.style.color = 'var(--cor-verde)';
+
                 } else {
+                    correctStreak = 0; // Zera o streak
                     timeLeft = Math.max(0, timeLeft - PENALTY_TIME);
                     timerDisplay.classList.add('timer-penalty');
                     setTimeout(() => timerDisplay.classList.remove('timer-penalty'), 500);
                     updateTimerDisplay();
                     button.classList.add('incorrect');
+
+                    // Mostra feedback de penalidade
+                    feedbackText.textContent = '-10 Segundos!';
+                    feedbackText.style.color = 'var(--cor-resposta-errada)';
 
                     // Mostra a resposta correta
                     const correctButton = Array.from(answersContainer.children).find(btn => {
